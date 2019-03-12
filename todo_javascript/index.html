@@ -1,0 +1,159 @@
+<html>
+<head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<style>
+.shadow
+{box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.5);
+}
+input
+{
+    border:none;
+    outline:none;
+}
+.round
+{
+    border-radius:50%;
+}
+.button
+{
+    width:40px;
+    height:38px;
+}
+#task
+{
+    font-style:italic;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+<script>                     
+//jquery code for fetching data by apis..................................................
+$(document).ready(function(){
+      listtask();                                 //list tasks
+});
+
+function insert(event)                                 //insert data
+{
+    let form= $('#add');
+    ajax_call("POST","http://todosql.local.geekydev.com/insert.php",form);       
+}
+function ajax_call(method,url_,form)                //function for applying ajax
+{
+    $.ajax({
+            type:method,
+            url:url_,
+            data:form.serialize(),
+            success:function(res){               
+               listtask();
+            },
+            error:function(err)
+            {
+               alert("err");
+            }
+        });
+}
+function updat(value)                                            //function for updating data
+{
+    let form= $('#'+value);
+       ajax_call("POST","http://todosql.local.geekydev.com/update.php",form); 
+}
+function dele(value)
+   { 
+    $.ajax({
+        type:"POST",
+        url:"http://todosql.local.geekydev.com/remove.php",
+        data:{text: value},
+        success:function(res)
+        {
+            listtask();
+        }        
+    });
+}
+function print_list(res)                                //printing html part
+{var code="<tr><td colspan='2'>Task</td><td colspan='3'>Status</td></tr>";   
+    for (let i = 0; i < res.length; i++) {  
+                                    //loop for displaying list...
+        code=code+"<tr><td><form id='"+res[i].id+"'>";
+        if(res[i].is_completed==1)
+        {code+= "<i class='fa fa-check' style='color:green'></i>";
+        }
+        code+="<input type='text'  name='val' id='task' value='"+res[i].caption+"'><input type='hidden'  name='index' value='"+res[i].id+"'><input type='hidden' value='caption' name='field'></td>";
+         code+="<td><button  class='btn btn-info' onclick='updat("+res[i].id+")'><i class='fa fa-pencil' ></i></button></form></td>";
+         code+="<td><form id='"+res[i].id+1000+"'>";
+         code+="<input type='hidden' value='is_completed' name='field'>";
+         code+="<input type='hidden' value='"+res[i].id+"' name='index'>";
+         if(res[i].is_completed==1)
+         code+="<select name='val'><option value='1'>Complete</option><option value='0'>Pending</option></select></td>";
+         else
+         code+="<select name='val'><option value='0'>Pending</option><option value='1'>Complete</option></select></td>";
+          code+="<td><div class='text-center'><button class='btn btn-dark' onclick='updat("+res[i].id+1000+")'>Update</button></form></td>";
+    code+="<td><button class='btn btn-danger round' title='remove task' onclick='dele("+res[i].id+")'><i class='fa fa-close'></i></button>";
+    code+="</td></tr>";
+                       
+                   }
+                   $('table').html(code);
+}
+function listtask()
+{
+$.ajax({                  //create an ajax request to display.php
+        type: "GET",
+        url: "http://todosql.local.geekydev.com/display.php",
+    
+        success: function(response){     
+                    
+         var res=JSON.parse((response));
+            print_list(res);
+        },
+        error:function(err)
+        {
+            alert(err);
+        }
+     });
+}
+</script>
+
+<!--HTML code......................................-->
+
+    <div class="jumbotron">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-6">
+        <h3>To Do</h3> 
+       <hr>
+        <form  id="add"> 
+        <div style="display:flex">
+<input type="text" name="item" class="form-control" style="width:90%" required min-length="4" autofocus>
+<button  class="btn btn-dark round shadow"style="margin-left:auto" onclick='insert(event)' id="bt"><i class="fa fa-plus"></i></button>
+</div>
+</form>
+
+</div>
+<div class="col"></div>
+</div>
+</div>
+<div class="container-fluid">    
+<div class="row">
+    <div class="col-2">
+  
+</div>
+<div class="col-sm-8">
+
+<table class='table shadow'>
+  
+</table>
+
+</div>
+<div class="col">
+
+</div>
+</div>
+</div>
+<script>
+
+</script>
+</body>
+</html>
